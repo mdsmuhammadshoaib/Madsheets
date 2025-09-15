@@ -123,6 +123,7 @@ app.get('/api/booked-slots', async (req, res) => {
 });
 
 app.post('/api/book-appointment', async (req, res) => {
+    console.log('Received booking request with body:', req.body);
     const { name, email, dateTime } = req.body;
     if (!name || !email || !dateTime) {
         return res.status(400).json({ error: 'All fields are required.' });
