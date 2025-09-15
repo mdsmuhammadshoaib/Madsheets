@@ -1151,7 +1151,7 @@
             email: allElements.emailInput.value,
             dateTime: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), selectedTime.hour, selectedTime.minute).toISOString()
         };
-        
+        console.log('Data being sent to server:', appointmentData); // <-- ADD THIS LINE
         try {
             const response = await fetch('/api/book-appointment', {
                 method: 'POST',
