@@ -12,6 +12,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// ADD THIS MIDDLEWARE
+app.use((req, res, next) => {
+  console.log('Function received request for path:', req.path);
+  next();
+});
+
 const CALENDAR_ID = process.env.CALENDAR_ID;
 const TIMEZONE = 'Asia/Karachi';
 const TIMEZONE_OFFSET = '+05:00';
