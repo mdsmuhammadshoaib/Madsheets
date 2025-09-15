@@ -1,4 +1,4 @@
-// api.js - Final version for Netlify Functions Version 2
+// api.js - Final version for Netlify Functions
 
 require('dotenv').config();
 const express = require('express');
@@ -6,22 +6,14 @@ const { google } = require('googleapis');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const serverless = require('serverless-http');
-const path = require('path');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// ADD THIS MIDDLEWARE
-app.use((req, res, next) => {
-  console.log('Function received request for path:', req.path);
-  next();
-});
-
 const CALENDAR_ID = process.env.CALENDAR_ID;
 const TIMEZONE = 'Asia/Karachi';
 const TIMEZONE_OFFSET = '+05:00';
-const GOOGLE_KEY_FILE = 'calendar-471817-af3b8f53f8da.json'; // The actual name of your key file
 
 // --- Nodemailer Setup ---
 const transporter = nodemailer.createTransport({
@@ -39,8 +31,11 @@ let calendarConfig = {
     }
 };
 
+// --- Google Auth (Updated to use environment variable) ---
+const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+
 const auth = new google.auth.GoogleAuth({
-    keyFile: path.join(__dirname, GOOGLE_KEY_FILE),
+    credentials,
     scopes: ['https://www.googleapis.com/auth/calendar'],
 });
 const calendar = google.calendar({ version: 'v3', auth });
@@ -82,11 +77,11 @@ async function fetchCalendarConfig() {
     }
 }
 
-app.get('/settings', (req, res) => {
+app.get('/api/settings', (req, res) => {
     res.json(calendarConfig);
 });
 
-app.get('/booked-slots', async (req, res) => {
+app.get('/api/booked-slots', async (req, res) => {
     const { date } = req.query;
     if (!date) {
         return res.status(400).json({ error: 'Date query is required.' });
@@ -127,7 +122,7 @@ app.get('/booked-slots', async (req, res) => {
     }
 });
 
-app.post('/book-appointment', async (req, res) => {
+app.post('/api/book-appointment', async (req, res) => {
     const { name, email, dateTime } = req.body;
     if (!name || !email || !dateTime) {
         return res.status(400).json({ error: 'All fields are required.' });
