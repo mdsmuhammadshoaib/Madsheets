@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const bodyParser = require('body-parser');
 const { google } = require('googleapis');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
@@ -9,7 +10,7 @@ const app = express();
 
 // --- Setup ---
 app.use(cors());
-app.use(express.json()); // Middleware to parse JSON bodies
+app.use(bodyParser.json()); //
 
 // --- Constants and Config ---
 const CALENDAR_ID = process.env.CALENDAR_ID;
