@@ -1,0 +1,4 @@
+# Backend dependencies and secrets
+/netlify/functions/api/node_modules
+/netlify/functions/api/.env
+/netlify/functions/api/calendar-471817-af3b8f53f8da.json

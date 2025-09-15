@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madsheets</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Urbanist -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Flaticon CDN -->
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-thin-rounded/css/uicons-thin-rounded.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-brands/css/uicons-brands.css'>
+    <!-- Masonry & ImagesLoaded CDNs -->
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+    <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
+    <style>
+        /* Custom styles to use the Urbanist font */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Urbanist', sans-serif;
+        }
+        section[id] {
+            scroll-margin-top: 120px; /* Offset for fixed header */
+        }
+        /* Custom shadow for green elements */
+        .custom-shadow {
+            box-shadow: 2px 4px 20px #D0FFDD;
+        }
+        /* Custom background gradient for hero section */
+        .hero-bg {
+            background: radial-gradient(circle, rgba(239, 255, 243, 0.5) 0%, #FFFFFF 100%);
+            position: relative;
+        }
+        /* New class for the container that will hold the grid */
+        .hero-grid-container {
+            position: relative;
+            overflow: hidden; /* Important to clip the transformed pseudo-element */
+        }
+        /* Responsive, code-based perspective grid background - Thicker, Taller, & Feathered Bottom */
+        .hero-grid-container::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 100%; /* Use full height for transformation */
+            z-index: -1; /* Place grid behind the content */
+            background-image:
+                /* Lines are now 2px thick */
+                linear-gradient(to right, rgba(0,0,0,0.07) 2px, transparent 2px),
+                linear-gradient(to bottom, rgba(0,0,0,0.07) 2px, transparent 2px);
+            /* Wider vertical lines, more horizontal lines to look like cells */
+            background-size: 8rem 2.5rem; 
+            transform-origin: bottom center;
+            /* Shallower angle for more perceived height */
+            transform: perspective(800px) rotateX(28deg);
+            /* Feathered edges on all sides, including a soft fade at the bottom */
+            mask-image: radial-gradient(ellipse 80% 85% at 50% 110%, black 50%, transparent 85%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 85% at 50% 110%, black 50%, transparent 85%);
+        }
+        /* Custom shadow for the review badge */
+        .review-shadow {
+            box-shadow: 2px 4px 20px rgba(255, 204, 0, 0.1);
+        }
+        /* Custom shadow for the navigation bar */
+        .custom-nav-shadow {
+            box-shadow: 0 5px 15px -3px rgb(0 0 0 / 0.1), 0 2px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        /* Seamless Marquee Animation (Reversed: Left to Right) */
+        @keyframes marquee {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+        }
+        .animate-marquee {
+            /* This container holds two identical sets of logos. The animation moves the container to the right, creating a seamless loop. */
+            animation: marquee 25s linear infinite;
+        }
+        /* Angled box for customer section with steeper angle */
+        .angled-box {
+            clip-path: polygon(15% 0%, 100% 0%, 100% 100%, 0% 100%);
+        }
+        /* Transition for challenge items */
+        .challenge-item {
+            transition: all 0.3s ease-in-out;
+        }
+        /* Styling for the desktop solution panel content for smooth transitions */
+        .solution-content-desktop {
+            transition: opacity 0.6s ease-in-out;
+        }
+        /* Styling for the mobile carousel */
+        .carousel-track {
+            /* The transition is now handled by JS for seamless looping */
+        }
+	.modal { display: none; }
+.modal.open { display: flex; }
+.hover-glow:hover { box-shadow: 0 0 10px rgba(43, 162, 76, 0.5); }
+.selected-glow { box-shadow: 0 0 15px rgba(43, 162, 76, 0.8); }
+.day-selected { background-color: #2ba24c; color: white; }
+.day-selected:hover { background-color: #2ba24c; }
+.time-selected { background-color: #2ba24c !important; color: white !important; }
+.time-selected:hover { background-color: #2ba24c !important; }
+
+    </style>
+</head>
+<body class="bg-white" id="top">
+
+    <!-- Header Section -->
+    <header class="p-4 md:p-8 w-full fixed top-0 left-0 z-20">
+        <!-- Navigation Bar Container -->
+        <!-- Constraining container width for a better look on large screens -->
+        <nav class="bg-white/60 backdrop-blur-lg border border-white/20 custom-nav-shadow rounded-full max-w-7xl mx-auto px-4 sm:px-6 py-2 md:py-3">
+            <div class="flex items-center justify-between">
+                
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <a href="#top">
+                        <img class="h-10 md:h-12 w-auto" src="logo.png" alt="Brand Logo">
+                    </a>
+                </div>
+
+                <!-- Primary Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#top" class="text-base font-semibold text-[#2BA24C] relative py-2 group">
+                        <span>Home</span>
+                        <!-- Underline for active link -->
+                        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-[#2BA24C] rounded-full"></span>
+                    </a>
+                    <a href="#challenges-section" class="text-base font-semibold text-[#555555] hover:text-[#2BA24C] transition-colors duration-300 py-2">Services</a>
+                    <a href="#testimonials-section" class="text-base font-semibold text-[#555555] hover:text-[#2BA24C] transition-colors duration-300 py-2">Testimonials</a>
+                </div>
+
+                <!-- "Contact Now" Button -->
+                <div>
+                    <a href="#get-in-touch" class="hidden sm:inline-block bg-[#2BA24C] text-white text-base font-bold px-6 py-2 rounded-full custom-shadow hover:bg-green-600 transition-all duration-300">
+                        Contact Now
+                    </a>
+                    <!-- Mobile Menu Button -->
+                    <button class="sm:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section  -->
+    <main>
+        <section class="hero-bg flex items-center pt-32 md:pt-40 pb-12 px-4 sm:px-6">
+            <!-- Constraining container width for a better look on large screens -->
+            <div class="hero-grid-container max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center z-10">
+                <!-- Text Content -->
+                <div class="text-center md:text-left md:col-span-7 md:pl-8 md:pr-14 relative z-10">
+                    <!-- Review Badge -->
+                    <a href="https://www.fiverr.com/daniyal134/make-professional-excel-and-google-sheets" target="_blank" rel="noopener noreferrer" class="inline-block">
+                        <div class="inline-flex items-center gap-3 bg-white border border-[#FFCC00] rounded-full p-1.5 pr-6 review-shadow mb-6">
+                            <!-- Stacked Avatars -->
+                            <div class="flex -space-x-2">
+                                <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="Profile 1.png" alt="Reviewer 1">
+                                <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="Profile 2.png" alt="Reviewer 2">
+                                <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="Profile 3.png" alt="Reviewer 3">
+                            </div>
+                            <!-- Stars and Text -->
+                            <div>
+                                <div class="flex items-center">
+                                    <svg class="w-3.5 h-3.5 text-[#FFCC00]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.956a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.448a1 1 0 00-.364 1.118l1.286 3.956c.3.921-.755 1.688-1.54 1.118l-3.368-2.448a1 1 0 00-1.176 0l-3.368 2.448c-.784.57-1.838-.197-1.54-1.118l1.286-3.956a1 1 0 00-.364-1.118L2.35 9.383c-.784-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.956z"></path></svg>
+                                    <svg class="w-3.5 h-3.5 text-[#FFCC00]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.956a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.448a1 1 0 00-.364 1.118l1.286 3.956c.3.921-.755 1.688-1.54 1.118l-3.368-2.448a1 1 0 00-1.176 0l-3.368 2.448c-.784.57-1.838-.197-1.54-1.118l1.286-3.956a1 1 0 00-.364-1.118L2.35 9.383c-.784-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.956z"></path></svg>
+                                    <svg class="w-3.5 h-3.5 text-[#FFCC00]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.956a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.448a1 1 0 00-.364 1.118l1.286 3.956c.3.921-.755 1.688-1.54 1.118l-3.368-2.448a1 1 0 00-1.176 0l-3.368 2.448c-.784.57-1.838-.197-1.54-1.118l1.286-3.956a1 1 0 00-.364-1.118L2.35 9.383c-.784-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.956z"></path></svg>
+                                    <svg class="w-3.5 h-3.5 text-[#FFCC00]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.956a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.448a1 1 0 00-.364 1.118l1.286 3.956c.3.921-.755 1.688-1.54 1.118l-3.368-2.448a1 1 0 00-1.176 0l-3.368 2.448c-.784.57-1.838-.197-1.54-1.118l1.286-3.956a1 1 0 00-.364-1.118L2.35 9.383c-.784-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.956z"></path></svg>
+                                    <svg class="w-3.5 h-3.5 text-[#FFCC00]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.956a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.448a1 1 0 00-.364 1.118l1.286 3.956c.3.921-.755 1.688-1.54 1.118l-3.368-2.448a1 1 0 00-1.176 0l-3.368 2.448c-.784.57-1.838-.197-1.54-1.118l1.286-3.956a1 1 0 00-.364-1.118L2.35 9.383c-.784-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.956z"></path></svg>
+                                    <span class="ml-1.5 text-xs font-medium text-[#555555]">5.0</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 mt-1 text-[10px]">
+                                   <p><span class="font-bold text-[#555555]">470+</span> <span class="font-normal text-[#777777]">reviews on</span></p>
+                                   <img src="fiverr-logo.png" alt="Fiverr" class="h-3">
+                                   <span class="font-normal text-[#777777]">&</span>
+                                   <img src="upwork-logo.png" alt="Upwork" class="h-3.5">
+                               </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Headline -->
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold text-[#444444] leading-tight">
+                        Custom <span class="text-[#2BA24C] font-bold">spreadsheet solutions</span> that fit your business
+                    </h1>
+                    
+                    <!-- Subheadline -->
+                    <p class="mt-6 text-base sm:text-xl lg:text-2xl text-[#555555] leading-relaxed lg:leading-10">
+                        From reporting to automation, Madsheets delivers tailored systems built around your needs.
+                    </p>
+
+                    <!-- Buttons -->
+                    <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                        <a href="#get-in-touch" class="inline-block text-center bg-[#2BA24C] text-white font-bold text-base sm:text-lg px-6 py-3 rounded-full custom-shadow hover:bg-green-600 transition-all duration-300">Contact Now</a>
+                        <a href="#booking-section" class="inline-block text-center bg-white text-[#2BA24C] font-medium text-base sm:text-lg px-6 py-3 rounded-full border border-[#2BA24C] hover:bg-green-50 transition-all duration-300">Book Appointment</a>
+                    </div>
+                </div>
+                
+                <!-- Image -->
+                <div class="md:flex items-center justify-center md:col-span-5 relative z-10 hidden">
+                    <img src="laptop.png" alt="Spreadsheet solution on a laptop" class="rounded-3xl w-full">
+                </div>
+            </div>
+        </section>
+
+        <!-- Happy Customers Logo Banner -->
+        <section>
+            <div class="max-w-7xl mx-auto flex items-center h-20">
+                <!-- Logo Ticker Container -->
+                <div class="flex-grow h-14 bg-[#EAFDEF] overflow-hidden relative">
+                    <div class="w-max animate-marquee flex items-center h-full">
+                        <!-- Set 1 -->
+                        <div class="flex-shrink-0 flex items-center space-x-12 px-6">
+                            <img src="1.png" alt="Client Logo 1" class="h-6 w-auto">
+                            <img src="2.png" alt="Client Logo 2" class="h-6 w-auto">
+                            <img src="3.png" alt="Client Logo 3" class="h-6 w-auto">
+                            <img src="4.png" alt="Client Logo 4" class="h-6 w-auto">
+                            <img src="5.png" alt="Client Logo 5" class="h-6 w-auto">
+                            <img src="6.png" alt="Client Logo 6" class="h-6 w-auto">
+                            <img src="7.png" alt="Client Logo 7" class="h-6 w-auto">
+                            <img src="8.png" alt="Client Logo 8" class="h-6 w-auto">
+                        </div>
+                        <!-- Set 2 (for seamless loop) -->
+                        <div class="flex-shrink-0 flex items-center space-x-12 px-6" aria-hidden="true">
+                            <img src="1.png" alt="Client Logo 1" class="h-6 w-auto">
+                            <img src="2.png" alt="Client Logo 2" class="h-6 w-auto">
+                            <img src="3.png" alt="Client Logo 3" class="h-6 w-auto">
+                            <img src="4.png" alt="Client Logo 4" class="h-6 w-auto">
+                            <img src="5.png" alt="Client Logo 5" class="h-6 w-auto">
+                            <img src="6.png" alt="Client Logo 6" class="h-6 w-auto">
+                            <img src="7.png" alt="Client Logo 7" class="h-6 w-auto">
+                            <img src="8.png" alt="Client Logo 8" class="h-6 w-auto">
+                        </div>
+                    </div>
+                </div>
+                <!-- "Our Happy Customers" Box -->
+                <div class="hidden sm:flex flex-shrink-0 bg-[#2BA24C] items-center justify-center angled-box w-64 sm:w-[22rem] h-full -ml-8 sm:-ml-12">
+                    <h3 class="text-white text-xl md:text-2xl font-bold text-center pl-10 sm:pl-16 pr-4 sm:pr-6">Our Happy Customers</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- Challenges Section -->
+        <section id="challenges-section" class="py-16 md:py-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                <!-- Section Title -->
+                <h2 class="text-3xl md:text-4xl font-bold text-[#555555] text-center">What <span class="text-[#2BA24C]">Challenges</span> Are You Facing?</h2>
+                <p class="text-base sm:text-lg md:text-xl text-[#555555] text-center mt-4 max-w-4xl mx-auto">Every business faces unique hurdles. Explore the common challenges below to see how we can help.</p>
+
+                <!-- DESKTOP View: Interactive List -->
+                <div id="challenges-desktop-view" class="mt-16 shadow-xl rounded-[30px] overflow-hidden hidden lg:grid lg:grid-cols-2">
+                    <!-- Left Column: List of Challenges -->
+                    <div id="challenges-list-desktop" class="bg-white">
+                        <!-- JS will generate items here -->
+                    </div>
+                    <!-- Right Column (Desktop Only): Solution Display -->
+                    <div class="bg-[#EAFDEF] p-10 flex flex-col justify-center">
+                        <div class="solution-content-desktop">
+                            <img id="solution-image-desktop" alt="Solution visual" class="rounded-2xl mb-8">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i id="solution-icon-desktop" class="text-3xl text-[#2BA24C]"></i>
+                                <h3 id="solution-title-desktop" class="text-2xl font-bold text-[#2BA24C]"></h3>
+                            </div>
+                            <p id="solution-description-desktop" class="text-lg text-[#555555] mb-8"></p>
+                            <a href="#get-in-touch" class="bg-[#2BA24C] text-white text-base font-bold px-8 py-3 rounded-full custom-shadow hover:bg-green-600 transition-all duration-300 self-start">Get Started</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MOBILE View: Carousel -->
+                <div id="challenges-carousel-mobile" class="mt-12 lg:hidden relative">
+                    <div class="overflow-hidden rounded-[30px] shadow-xl">
+                        <div id="carousel-track" class="flex carousel-track">
+                           <!-- JS will generate slides here -->
+                        </div>
+                    </div>
+                    <!-- Carousel Controls -->
+                    <button id="carousel-prev" class="absolute top-1/2 left-2 -translate-y-1/2 bg-white/50 rounded-full p-2 text-gray-700 hover:bg-white transition-all opacity-50 hover:opacity-100">
+                        <i class="fi fi-tr-angle-left text-2xl flex"></i>
+                    </button>
+                    <button id="carousel-next" class="absolute top-1/2 right-2 -translate-y-1/2 bg-white/50 rounded-full p-2 text-gray-700 hover:bg-white transition-all opacity-50 hover:opacity-100">
+                        <i class="fi fi-tr-angle-right text-2xl flex"></i>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section id="testimonials-section" class="py-16 md:py-24 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                <!-- Section Title -->
+                <h2 class="text-3xl md:text-4xl font-bold text-[#555555] text-center">Our Clients <span class="text-[#2BA24C]">LOVE</span> Us!</h2>
+                <p class="text-base sm:text-lg md:text-xl text-[#555555] text-center mt-4 max-w-3xl mx-auto">Every project we take on leaves clients satisfied with measurable business improvements.</p>
+
+                <!-- Masonry Grid Container -->
+                <div id="masonry-grid" class="mt-12" style="position: relative;">
+                     <!-- JS will generate testimonials here -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Process Section -->
+        <section class="py-12 md:py-20">
+             <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                 <!-- Header content with title and subtitle -->
+                <div class="flex flex-col items-center text-center gap-2 mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-[#555555] text-center">
+                        Easy, Effortless <span class="text-[#2BA24C]">Process!</span>
+                    </h2>
+                    <p class="text-base sm:text-lg md:text-xl text-[#555555] text-center max-w-3xl mx-auto">
+                        Our streamlined process ensures a smooth experience from start to finish.
+                    </p>
+                </div>
+
+                <!-- Container for the process steps and arrows -->
+                <div class="grid grid-cols-2 gap-y-12 gap-x-8 lg:flex lg:flex-nowrap lg:justify-between lg:items-start lg:gap-x-4">
+
+                    <!-- Step 1: Discovery -->
+                    <div class="flex flex-col items-center text-center z-10">
+                        <img src="Discovery.png" alt="Discovery" class="w-16 h-16 md:w-20 md:h-20 mb-4">
+                        <h3 class="font-bold text-base sm:text-lg md:text-2xl text-[#444444] mb-1 md:mb-2">Discovery</h3>
+                        <p class="max-w-xs text-[#777777] text-xs sm:text-sm md:text-base leading-relaxed">
+                            A deep-dive session to understand your business & challenges.
+                        </p>
+                    </div>
+
+                    <!-- Arrow 1 -->
+                    <div class="hidden lg:flex flex-grow items-center pt-8">
+                        <svg width="157" height="16" viewBox="0 0 157 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+                            <path d="M0.666667 8C0.666667 10.9455 3.05448 13.3333 6 13.3333C8.94552 13.3333 11.3333 10.9455 11.3333 8C11.3333 5.05448 8.94552 2.66667 6 2.66667C3.05448 2.66667 0.666667 5.05448 0.666667 8ZM156.707 8.70711C157.098 8.31658 157.098 7.68342 156.707 7.29289L150.343 0.928932C149.953 0.538408 149.319 0.538408 148.929 0.928932C148.538 1.31946 148.538 1.95262 148.929 2.34315L154.586 8L148.929 13.6569C148.538 14.0474 148.538 14.6805 148.929 15.0711C149.319 15.4616 149.953 15.4616 150.343 15.0711L156.707 8.70711ZM10.6875 9C11.2398 9 11.6875 8.55228 11.6875 8C11.6875 7.44772 11.2398 7 10.6875 7V8V9ZM20.0625 7C19.5102 7 19.0625 7.44772 19.0625 8C19.0625 8.55228 19.5102 9 20.0625 9V8V7ZM29.4375 9C29.9898 9 30.4375 8.55228 30.4375 8C30.4375 7.44772 29.9898 7 29.4375 7V8V9ZM38.8125 7C38.2602 7 37.8125 7.44772 37.8125 8C37.8125 8.55228 38.2602 9 38.8125 9V8V7ZM48.1875 9C48.7398 9 49.1875 8.55228 49.1875 8C49.1875 7.44772 48.7398 7 48.1875 7V8V9ZM57.5625 7C57.0102 7 56.5625 7.44772 56.5625 8C56.5625 8.55228 57.0102 9 57.5625 9V8V7ZM66.9375 9C67.4898 9 67.9375 8.55228 67.9375 8C67.9375 7.44772 67.4898 7 66.9375 7V8V9ZM76.3125 7C75.7602 7 75.3125 7.44772 75.3125 8C75.3125 8.55228 75.7602 9 76.3125 9V8V7ZM85.6875 9C86.2398 9 86.6875 8.55228 86.6875 8C86.6875 7.44772 86.2398 7 85.6875 7V8V9ZM95.0625 7C94.5102 7 94.0625 7.44772 94.0625 8C94.0625 8.55228 94.5102 9 95.0625 9V8V7ZM104.438 9C104.99 9 105.438 8.55228 105.438 8C105.438 7.44772 104.99 7 104.438 7V8V9ZM113.813 7C113.26 7 112.813 7.44772 112.813 8C112.813 8.55228 113.26 9 113.813 9V8V7ZM123.188 9C123.74 9 124.188 8.55228 124.188 8C124.188 7.44772 123.74 7 123.188 7V8V9ZM132.563 7C132.01 7 131.563 7.44772 131.563 8C131.563 8.55228 132.01 9 132.563 9V8V7ZM141.938 9C142.49 9 142.938 8.55228 142.938 8C142.938 7.44772 142.49 7 141.938 7V8V9ZM151.313 7C150.76 7 150.313 7.44772 150.313 8C150.313 8.55228 150.76 9 151.313 9V8V7ZM6 8V9H10.6875V8V7H6V8ZM20.0625 8V9H29.4375V8V7H20.0625V8ZM38.8125 8V9H48.1875V8V7H38.8125V8ZM57.5625 8V9H66.9375V8V7H57.5625V8ZM76.3125 8V9H85.6875V8V7H76.3125V8ZM95.0625 8V9H104.438V8V7H95.0625V8ZM113.813 8V9H123.188V8V7H113.813V8ZM132.563 8V9H141.938V8V7H132.563V8ZM151.313 8V9H156V8V7H151.313V8Z" fill="#BEBEBE"/>
+                        </svg>
+                    </div>
+
+                    <!-- Step 2: Planning & Proposal -->
+                    <div class="flex flex-col items-center text-center z-10">
+                        <img src="Planning & Proposal.png" alt="Planning & Proposal" class="w-16 h-16 md:w-20 md:h-20 mb-4">
+                        <h3 class="font-bold text-base sm:text-lg md:text-2xl text-[#444444] mb-2">Planning & Proposal</h3>
+                        <p class="max-w-xs text-[#777777] text-xs sm:text-sm md:text-base leading-relaxed">
+                            We will outline a spreadsheet solution based on your insights.
+                        </p>
+                    </div>
+
+                    <!-- Arrow 2 -->
+                    <div class="hidden lg:flex flex-grow items-center pt-8">
+                         <svg width="157" height="16" viewBox="0 0 157 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+                            <path d="M0.666667 8C0.666667 10.9455 3.05448 13.3333 6 13.3333C8.94552 13.3333 11.3333 10.9455 11.3333 8C11.3333 5.05448 8.94552 2.66667 6 2.66667C3.05448 2.66667 0.666667 5.05448 0.666667 8ZM156.707 8.70711C157.098 8.31658 157.098 7.68342 156.707 7.29289L150.343 0.928932C149.953 0.538408 149.319 0.538408 148.929 0.928932C148.538 1.31946 148.538 1.95262 148.929 2.34315L154.586 8L148.929 13.6569C148.538 14.0474 148.538 14.6805 148.929 15.0711C149.319 15.4616 149.953 15.4616 150.343 15.0711L156.707 8.70711ZM10.6875 9C11.2398 9 11.6875 8.55228 11.6875 8C11.6875 7.44772 11.2398 7 10.6875 7V8V9ZM20.0625 7C19.5102 7 19.0625 7.44772 19.0625 8C19.0625 8.55228 19.5102 9 20.0625 9V8V7ZM29.4375 9C29.9898 9 30.4375 8.55228 30.4375 8C30.4375 7.44772 29.9898 7 29.4375 7V8V9ZM38.8125 7C38.2602 7 37.8125 7.44772 37.8125 8C37.8125 8.55228 38.2602 9 38.8125 9V8V7ZM48.1875 9C48.7398 9 49.1875 8.55228 49.1875 8C49.1875 7.44772 48.7398 7 48.1875 7V8V9ZM57.5625 7C57.0102 7 56.5625 7.44772 56.5625 8C56.5625 8.55228 57.0102 9 57.5625 9V8V7ZM66.9375 9C67.4898 9 67.9375 8.55228 67.9375 8C67.9375 7.44772 67.4898 7 66.9375 7V8V9ZM76.3125 7C75.7602 7 75.3125 7.44772 75.3125 8C75.3125 8.55228 75.7602 9 76.3125 9V8V7ZM85.6875 9C86.2398 9 86.6875 8.55228 86.6875 8C86.6875 7.44772 86.2398 7 85.6875 7V8V9ZM95.0625 7C94.5102 7 94.0625 7.44772 94.0625 8C94.0625 8.55228 94.5102 9 95.0625 9V8V7ZM104.438 9C104.99 9 105.438 8.55228 105.438 8C105.438 7.44772 104.99 7 104.438 7V8V9ZM113.813 7C113.26 7 112.813 7.44772 112.813 8C112.813 8.55228 113.26 9 113.813 9V8V7ZM123.188 9C123.74 9 124.188 8.55228 124.188 8C124.188 7.44772 123.74 7 123.188 7V8V9ZM132.563 7C132.01 7 131.563 7.44772 131.563 8C131.563 8.55228 132.01 9 132.563 9V8V7ZM141.938 9C142.49 9 142.938 8.55228 142.938 8C142.938 7.44772 142.49 7 141.938 7V8V9ZM151.313 7C150.76 7 150.313 7.44772 150.313 8C150.313 8.55228 150.76 9 151.313 9V8V7ZM6 8V9H10.6875V8V7H6V8ZM20.0625 8V9H29.4375V8V7H20.0625V8ZM38.8125 8V9H48.1875V8V7H38.8125V8ZM57.5625 8V9H66.9375V8V7H57.5625V8ZM76.3125 8V9H85.6875V8V7H76.3125V8ZM95.0625 8V9H104.438V8V7H95.0625V8ZM113.813 8V9H123.188V8V7H113.813V8ZM132.563 8V9H141.938V8V7H132.563V8ZM151.313 8V9H156V8V7H151.313V8Z" fill="#BEBEBE"/>
+                        </svg>
+                    </div>
+
+                    <!-- Step 3: Execution -->
+                    <div class="flex flex-col items-center text-center z-10">
+                        <img src="Execution.png" alt="Execution" class="w-16 h-16 md:w-20 md:h-20 mb-4">
+                        <h3 class="font-bold text-base sm:text-lg md:text-2xl text-[#444444] mb-2">Execution</h3>
+                        <p class="max-w-xs text-[#777777] text-xs sm:text-sm md:text-base leading-relaxed">
+                            Our specialists build your spreadsheet with regular updates.
+                        </p>
+                    </div>
+                    
+                    <!-- Arrow 3 -->
+                    <div class="hidden lg:flex flex-grow items-center pt-8">
+                         <svg width="157" height="16" viewBox="0 0 157 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+                            <path d="M0.666667 8C0.666667 10.9455 3.05448 13.3333 6 13.3333C8.94552 13.3333 11.3333 10.9455 11.3333 8C11.3333 5.05448 8.94552 2.66667 6 2.66667C3.05448 2.66667 0.666667 5.05448 0.666667 8ZM156.707 8.70711C157.098 8.31658 157.098 7.68342 156.707 7.29289L150.343 0.928932C149.953 0.538408 149.319 0.538408 148.929 0.928932C148.538 1.31946 148.538 1.95262 148.929 2.34315L154.586 8L148.929 13.6569C148.538 14.0474 148.538 14.6805 148.929 15.0711C149.319 15.4616 149.953 15.4616 150.343 15.0711L156.707 8.70711ZM10.6875 9C11.2398 9 11.6875 8.55228 11.6875 8C11.6875 7.44772 11.2398 7 10.6875 7V8V9ZM20.0625 7C19.5102 7 19.0625 7.44772 19.0625 8C19.0625 8.55228 19.5102 9 20.0625 9V8V7ZM29.4375 9C29.9898 9 30.4375 8.55228 30.4375 8C30.4375 7.44772 29.9898 7 29.4375 7V8V9ZM38.8125 7C38.2602 7 37.8125 7.44772 37.8125 8C37.8125 8.55228 38.2602 9 38.8125 9V8V7ZM48.1875 9C48.7398 9 49.1875 8.55228 49.1875 8C49.1875 7.44772 48.7398 7 48.1875 7V8V9ZM57.5625 7C57.0102 7 56.5625 7.44772 56.5625 8C56.5625 8.55228 57.0102 9 57.5625 9V8V7ZM66.9375 9C67.4898 9 67.9375 8.55228 67.9375 8C67.9375 7.44772 67.4898 7 66.9375 7V8V9ZM76.3125 7C75.7602 7 75.3125 7.44772 75.3125 8C75.3125 8.55228 75.7602 9 76.3125 9V8V7ZM85.6875 9C86.2398 9 86.6875 8.55228 86.6875 8C86.6875 7.44772 86.2398 7 85.6875 7V8V9ZM95.0625 7C94.5102 7 94.0625 7.44772 94.0625 8C94.0625 8.55228 94.5102 9 95.0625 9V8V7ZM104.438 9C104.99 9 105.438 8.55228 105.438 8C105.438 7.44772 104.99 7 104.438 7V8V9ZM113.813 7C113.26 7 112.813 7.44772 112.813 8C112.813 8.55228 113.26 9 113.813 9V8V7ZM123.188 9C123.74 9 124.188 8.55228 124.188 8C124.188 7.44772 123.74 7 123.188 7V8V9ZM132.563 7C132.01 7 131.563 7.44772 131.563 8C131.563 8.55228 132.01 9 132.563 9V8V7ZM141.938 9C142.49 9 142.938 8.55228 142.938 8C142.938 7.44772 142.49 7 141.938 7V8V9ZM151.313 7C150.76 7 150.313 7.44772 150.313 8C150.313 8.55228 150.76 9 151.313 9V8V7ZM6 8V9H10.6875V8V7H6V8ZM20.0625 8V9H29.4375V8V7H20.0625V8ZM38.8125 8V9H48.1875V8V7H38.8125V8ZM57.5625 8V9H66.9375V8V7H57.5625V8ZM76.3125 8V9H85.6875V8V7H76.3125V8ZM95.0625 8V9H104.438V8V7H95.0625V8ZM113.813 8V9H123.188V8V7H113.813V8ZM132.563 8V9H141.938V8V7H132.563V8ZM151.313 8V9H156V8V7H151.313V8Z" fill="#BEBEBE"/>
+                        </svg>
+                    </div>
+
+                    <!-- Step 4: Delivery & Support -->
+                    <div class="flex flex-col items-center text-center z-10">
+                        <img src="Delivery & Support.png" alt="Delivery & Support" class="w-16 h-16 md:w-20 md:h-20 mb-4">
+                        <h3 class="font-bold text-base sm:text-lg md:text-2xl text-[#444444] mb-2">Delivery & Support</h3>
+                        <p class="max-w-xs text-[#777777] text-xs sm:text-sm md:text-base leading-relaxed">
+                            We’ll deliver a powerful spreadsheet backed by ongoing support.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Section -->
+        <section id="booking-section" class="py-12 md:py-24 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                <!-- Header content with title and subtitle -->
+                <div class="flex flex-col items-center text-center gap-2 mb-8 md:mb-12">
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#555555] text-center">
+                        <!-- Book an <span class="text-[#2BA24C]">Appointment</span> -->
+                    </h2>
+                    <!-- <p class="text-sm sm:text-base md:text-xl text-[#555555] text-center max-w-3xl mx-auto">
+                        Book a free 30-minute discovery call to discuss your project.
+                    </p> -->
+                </div>
+                <!-- Iframe Container -->
+                <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12">
+    
+    <div class="flex-[2] order-2 lg:order-none">
+        <div id="appointment-details" class="bg-[#f0f9f3] p-6 rounded-2xl shadow-inner mb-6">
+            <h2 class="text-2xl font-bold text-[#1f873e] mb-4">Your Appointment</h2>
+            <div class="space-y-3">
+                <div class="flex items-center space-x-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#2ba24c]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <div>
+                        <span class="text-sm font-semibold text-[#2ba24c]">Date</span>
+                        <span id="selected-date-display" class="font-medium text-[#144c21]"></span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#2ba24c]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div>
+                        <span class="text-sm font-semibold text-[#2ba24c]">Time</span>
+                        <span id="selected-time-display" class="font-medium text-[#144c21]"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <form id="booking-form">
+            <div class="mb-4">
+                <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                <input type="text" id="name" name="name" required class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-full shadow-sm focus:border-[#2ba24c] focus:ring-[#2ba24c] focus:ring-1">
+            </div>
+            <div class="mb-6">
+                <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                <input type="email" id="email" name="email" required class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-full shadow-sm focus:border-[#2ba24c] focus:ring-[#2ba24c] focus:ring-1">
+            </div>
+            <button type="submit" id="book-btn" disabled class="w-full py-3 px-6 rounded-full text-white font-semibold shadow-lg bg-[#2ba24c] hover:bg-[#258d41] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2ba24c] disabled:opacity-50 disabled:cursor-not-allowed">Book Appointment</button>
+        </form>
+    </div>
+    
+    <div class="flex-[4] order-1 lg:order-none">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Book Your Appointment</h1>
+        <p class="text-gray-500 mb-6">Choose an available day and time for your appointment.</p>
+        <div class="bg-[#f0f9f3] p-6 rounded-2xl mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <button id="prev-month" class="p-2 rounded-full hover-glow hover:bg-[#dff5e5] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#1f873e]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+                <span id="current-month-year" class="text-lg font-semibold text-gray-700"></span>
+                <button id="next-month" class="p-2 rounded-full hover-glow hover:bg-[#dff5e5] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#1f873e]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+            </div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-center"></div>
+        </div>
+        <div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Available Time Slots</h3>
+            <div id="time-slots" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+        </div>
+    </div>
+</div>
+
+<div id="modal" class="modal fixed inset-0 z-50 bg-gray-900 bg-opacity-50 items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full transform transition-all scale-95 opacity-0" id="modal-content">
+        <h3 id="modal-title" class="text-xl font-bold text-gray-800 mb-4"></h3>
+        <p id="modal-message" class="text-gray-600 mb-6"></p>
+        <button id="modal-close-btn" class="w-full py-2 px-4 rounded-full bg-[#2ba24c] text-white font-semibold hover-glow hover:bg-[#258d41]">Close</button>
+    </div>
+</div>
+        </section>
+
+        <!-- Get In Touch Section -->
+        <section id="get-in-touch" class="py-12 md:pt-14 pb-8 bg-[#EAFDEF]">
+      <div class="text-center mb-4">
+          <h3 class="text-3xl md:text-4xl font-bold text-[#444444]">Or</h3>
+      </div>
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 bg-white rounded-2xl shadow-2xl p-6 sm:p-10 md:p-16">
+            <div class="flex flex-col items-center text-center gap-2 mb-8">
+              <h2 class="text-3xl md:text-4xl font-bold text-[#444444] text-center">
+                  Get in Touch
+              </h2>
+              <p class="text-base sm:text-lg md:text-xl text-[#777777] text-center max-w-xl mx-auto">
+                  Fill out a short form below and we will get back to you ASAP
+              </p>
+          </div>
+          <form name="contact" method="POST" data-netlify="true" class="space-y-6" data-netlify-honeypot="bot-field">
+<input type="hidden" name="form-name" value="contact" />
+<p class="hidden">
+    <label>Don’t fill this out if you’re human: <input name="bot-field" /></label>
+</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+        <label for="first-name" class="block text-lg font-semibold text-[#777777] mb-1">First Name</label>
+        <input type="text" name="first-name" id="first-name" placeholder="Enter your first name" class="w-full px-4 py-3 border border-[#D0D0D0] rounded-xl focus:ring-2 focus:ring-[#2BA24C] focus:border-transparent transition" required>
+    </div>
+    <div>
+        <label for="last-name" class="block text-lg font-semibold text-[#777777] mb-1">Last Name</label>
+        <input type="text" name="last-name" id="last-name" placeholder="Enter your last name" class="w-full px-4 py-3 border border-[#D0D0D0] rounded-xl focus:ring-2 focus:ring-[#2BA24C] focus:border-transparent transition">
+    </div>
+    <div>
+        <label for="email" class="block text-lg font-semibold text-[#777777] mb-1">Email</label>
+        <input type="email" name="email" id="email" placeholder="Enter your email address" class="w-full px-4 py-3 border border-[#D0D0D0] rounded-xl focus:ring-2 focus:ring-[#2BA24C] focus:border-transparent transition" required>
+    </div>
+    <div>
+        <label for="phone" class="block text-lg font-semibold text-[#777777] mb-1">Phone Number</label>
+        <input type="tel" name="phone" id="phone" placeholder="Enter your phone number" class="w-full px-4 py-3 border border-[#D0D0D0] rounded-xl focus:ring-2 focus:ring-[#2BA24C] focus:border-transparent transition">
+    </div>
+</div>
+<div>
+    <label for="message" class="block text-lg font-semibold text-[#777777] mb-1">Message</label>
+    <textarea id="message" name="message" rows="5" placeholder="Enter your message" class="w-full px-4 py-3 border border-[#D0D0D0] rounded-xl focus:ring-2 focus:ring-[#2BA24C] focus:border-transparent transition" required></textarea>
+</div>
+<div>
+    <button type="submit" class="w-full bg-[#2BA24C] text-white font-bold text-xl py-4 rounded-full custom-shadow hover:bg-green-600 transition-all duration-300">
+        Submit
+    </button>
+</div>
+</form>
+      </div>
+<div class="max-w-7xl mx-auto py-10 mt-4 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12">
+            <a href="tel:+13658732398" class="flex items-center gap-3 text-lg sm:text-xl font-medium text-[#555555] hover:text-[#2BA24C] transition-colors">
+                <i class="fi fi-tr-phone-call text-2xl text-[#2BA24C]"></i>
+                <span>+1 365-873-2398</span>
+            </a>
+             <div class="w-px h-8 bg-gray-300 hidden md:block"></div>
+            <a href="mailto:hello@madsheets.com" class="flex items-center gap-3 text-lg sm:text-xl font-medium text-[#555555] hover:text-[#2BA24C] transition-colors">
+                <i class="fi fi-tr-envelope text-2xl text-[#2BA24C]"></i>
+                <span>hello@madsheets.com</span>
+            </a>
+      </div>
+</section>
+
+        <!-- Core Values Section -->
+        <section class="py-12 md:py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                 <!-- Header content with title and subtitle -->
+                <div class="flex flex-col items-center text-center gap-2 mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-[#444444]">
+                        Our Core <span class="text-[#2BA24C]">Values</span>
+                    </h2>
+                    <p class="text-lg md:text-xl text-[#777777] max-w-xl">
+                        What you can expect when you work with us, every time.
+                    </p>
+                </div>
+
+                <!-- Values Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Value 1 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col">
+                        <div class="flex items-start gap-4">
+                            <img src="Satisfaction Guarantee.png" alt="Satisfaction Guarantee Icon" class="w-12 h-12">
+                            <div>
+                                <h3 class="font-semibold text-xl text-[#555555] leading-tight pl-4">Satisfaction Guarantee</h3>
+                            </div>
+                        </div>
+                        <p class="text-[#777777] mt-4 flex-grow">Our work isn't done until you are 100% satisfied with the result.</p>
+                    </div>
+                    <!-- Value 2 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col">
+                        <div class="flex items-start gap-4">
+                            <img src="Transparent Communication.png" alt="Transparent Communication Icon" class="w-12 h-12">
+                            <div>
+                                <h3 class="font-semibold text-xl text-[#555555] leading-tight  pl-4">Transparent Communication</h3>
+                            </div>
+                        </div>
+                        <p class="text-[#777777] mt-4 flex-grow">We provide clear, consistent updates to keep you in the loop.</p>
+                    </div>
+                    <!-- Value 3 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col">
+                        <div class="flex items-start gap-4">
+                            <img src="On-Time Delivery.png" alt="On-Time Delivery Icon" class="w-12 h-auto">
+                             <div>
+                                <h3 class="font-semibold text-xl text-[#555555] leading-tight  pl-4">On-Time Delivery</h3>
+                            </div>
+                        </div>
+                        <p class="text-[#777777] mt-4 flex-grow">We are committed to delivering your project right on schedule.</p>
+                    </div>
+                    <!-- Value 4 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col">
+                        <div class="flex items-start gap-4">
+                           <img src="After-Sale Support.png" alt="After-Sale Support Icon" class="w-12 h-12">
+                            <div>
+                                <h3 class="font-semibold text-xl text-[#555555] leading-tight  pl-4">After-Sales Support</h3>
+                            </div>
+                        </div>
+                        <p class="text-[#777777] mt-4 flex-grow">Ongoing support for long-term, seamless performance.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-[#EAFDEF] pt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+                <!-- Logo -->
+                <a href="#top">
+                     <img class="h-12 w-auto" src="logo.png" alt="Brand Logo">
+                </a>
+               
+                <!-- Social Icons -->
+                <div class="flex items-center space-x-4">
+                    <a href="https://www.linkedin.com/company/madsheet/" target="_blank" rel="noopener noreferrer" class="text-[#2BA24C] hover:text-green-700 transition-colors">
+                        <i class="fi fi-brands-linkedin text-2xl"></i>
+                    </a>
+                    <a href="https://www.facebook.com/madsheets.ms" target="_blank" rel="noopener noreferrer" class="text-[#2BA24C] hover:text-green-700 transition-colors">
+                        <i class="fi fi-brands-facebook text-2xl"></i>
+                    </a>
+                    <a href="https://www.instagram.com/madsheets_com/" target="_blank" rel="noopener noreferrer" class="text-[#2BA24C] hover:text-green-700 transition-colors">
+                        <i class="fi fi-brands-instagram text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+
+             
+
+        </div>
+        <!-- Copyright -->
+        <div class="border-t-2 border-gray-400/20 mt-4 py-6">
+            <p class="text-center text-[#777777] text-base">
+                Copyright © 2025 madsheets, All rights reserved.
+            </p>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- DATA ---
+            const challengesData = [
+                {
+                    challenge_normal: "<span class='text-white bg-[#FF4F4F] font-bold px-2 py-1 rounded'>Scattered</span> Sales Data & <span class='text-white bg-[#FF4F4F] font-bold px-2 py-1 rounded'>Lost Leads</span>?",
+                    challenge_active: "Scattered Sales Data & Lost Leads?",
+                    icon: `<i class="fi fi-tr-funnel-dollar text-3xl"></i>`,
+                    solution: {
+                        image: 'p1.png',
+                        title: "Centralized Sales Dashboard",
+                        description: "Consolidate your sales data from multiple sources into one powerful, real-time dashboard to track leads and performance."
+                    }
+                },
+                {
+                    challenge_normal: "Chaotic Projects & <span class='text-white bg-[#FF4F4F] font-bold px-2 py-1 rounded'>Missed Deadlines?</span>",
+                    challenge_active: "Chaotic Projects & Missed Deadlines?",
+                     icon: `<i class="fi fi-tr-calendar-clock text-3xl"></i>`,
+                    solution: {
+                        image: 'p2.png',
+                        title: "Dynamic Project Management System",
+                        description: "Track tasks, allocate resources, and monitor deadlines with a custom project management system that keeps everyone aligned."
+                    }
+                },
+                {
+                    challenge_normal: "Tired of <span class='text-white bg-[#FF4F4F] font-bold px-2 py-1 rounded'>Manual Data Entry?</span>",
+                    challenge_active: "Tired of Manual Data Entry?",
+                    icon: `<i class="fi fi-tr-keyboard text-3xl"></i>`,
+                    solution: {
+                        image: 'p3.png',
+                        title: "Automated Workflow & Data Capture",
+                        description: "We use API integrations to connect your apps, eliminating repetitive data entry and reducing errors."
+                    }
+                },
+                {
+                    challenge_normal: "<span class='text-white bg-[#FF4F4F] font-bold px-2 py-1 rounded'>Messy</span> HR & <span class='text-white bg-[#FF4F4F] font-bold px-2 py-1 rounded'>Manual</span> Admin Tasks?",
+                    challenge_active: "Messy HR & Manual Admin Tasks?",
+                    icon: `<i class="fi fi-tr-users-alt text-3xl"></i>`,
+                    solution: {
+                        image: 'p4.png',
+                        title: "Streamlined HR & Admin Portals",
+                        description: "Automate onboarding, track leave, and manage employee data through a simple, custom-built HR portal."
+                    }
+                },
+                {
+                    challenge_normal: "<span class='text-white bg-[#FF4F4F] font-bold px-2 py-1 rounded'>Overwhelmed</span> by Personal Finances?",
+                    challenge_active: "Overwhelmed by Personal Finances?",
+                    icon: `<i class="fi fi-tr-calculator-bill text-3xl"></i>`,
+                    solution: {
+                        image: 'p5.png',
+                        title: "Personal Finance & Budget Trackers",
+                        description: "Take control of your finances with a personalized budget tracker that visualizes your spending, savings, and investments."
+                    }
+                },
+                {
+                    challenge_normal: "Messy Inventory & <span class='text-white bg-[#FF4F4F] font-bold px-2 py-1 rounded'>Stock Errors?</span>",
+                    challenge_active: "Messy Inventory & Stock Errors?",
+                    icon: `<i class="fi fi-tr-boxes text-3xl"></i>`,
+                    solution: {
+                        image: 'p6.png',
+                        title: "Smart Inventory Management",
+                        description: "Track stock levels in real-time, get low-stock alerts, and automate reordering to prevent costly stockouts or overstocking."
+                    }
+                },
+            ];
+
+            const testimonialsData = [
+                {
+                    type: 'video',
+                    name: "Tommy Baldwin",
+                    title: "CEO, Shoreside Support",
+                    avatar: "https://placehold.co/40x40/6EE7B7/1F2937?text=TB",
+                    rating: 5,
+                    media: `<iframe class="w-full aspect-[9/16] rounded-2xl" src="https://www.youtube.com/embed/QeCmLGUzm9k" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+                },
+                {
+                    type: 'text',
+                    name: "Jacob Swift",
+                    title: "Owner, Anevry",
+                    avatar: "jacob.png",
+                    rating: 5,
+                    testimonial: "I’ve worked with madsheets as a software contractor for our firm for over a year now, and in that time they have been amazing to work with. Their code is always stellar, always meeting my requirements above and beyond, and their team worked tirelessly around the clock to make it happen. I cannot recommend them highly enough. If you’re at all in doubt, give them a try. You won’t regret it! For exact details of their work, or exact references, please reach out to us: www.ANEVRY.com.",
+                },
+                
+		{
+                    type: 'video',
+                    name: "Gray Twombly",
+                    title: "CEO, The Whole Founder",
+                    avatar: "https://placehold.co/40x40/A78BFA/1F2937?text=GT",
+                    rating: 5,
+                    media: `<video class="w-full aspect-[9/16] rounded-2xl" controls>
+                               <source src="gray.mp4" type="video/mp4">
+                               Your browser does not support the video tag.
+                             </video>`
+                },
+
+                
+                 {
+                    type: 'video',
+                    name: "Michael Spencer",
+                    title: "CEO, Heritage Management, Inc.",
+                    avatar: "https://placehold.co/40x40/A78BFA/1F2937?text=MS",
+                    rating: 5,
+                    media: `<iframe class="w-full aspect-[9/16] rounded-2xl" src="https://www.youtube.com/embed/6iH98BSF4Co" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+                },
+		{
+                    type: 'text',
+                    name: "A. Taylor",
+                    title: "VP of Operations, CertaPro Indianapolis",
+                    avatar: "at.png",
+                    rating: 5,
+                    testimonial: "I have worked with madsheets for nearly 2 years Aproprietary software solutions that have enabled my staff to greatly increase their productivity. Every dollar was well spent and madsheet's commitment to delivering high quality work that meets or exceeds their clients' needs is extraordinary. I highly recommend.",
+                },
+		{
+                    type: 'text',
+                    name: "Daniel Ram",
+                    title: "Founder, Zenpal",
+                    avatar: "daniel.png",
+                    rating: 5,
+                    testimonial: "Working with Daniyal is a perfect combination between a practical, creative and knowledgeable professional with a caring, client oriented service.",
+                },
+		{
+                    type: 'video',
+                    name: "Lou NeJame",
+                    title: "VP of CertaPro Painters of the South Shore and Boston",
+                    avatar: "https://placehold.co/40x40/A78BFA/1F2937?text=LN",
+                    rating: 5,
+                    media: `<iframe class="w-full aspect-[1/1] rounded-2xl" src="https://www.youtube.com/embed/81Q2E3R-ZPk?si=Uze2j1HTQ-9XN_l7" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+                },
+
+                 
+		{
+                    type: 'video',
+                    name: "Ricky Guilbert",
+                    title: "Co-Founder, Form Fitness",
+                    avatar: "https://placehold.co/40x40/A78BFA/1F2937?text=RG",
+                    rating: 5,
+                    media: `<iframe class="w-full aspect-[1/1] rounded-2xl" src="https://www.youtube.com/embed/akc9jL6-Wno?si=7m1Vk_XE064EaGB7" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+                },
+		{
+                    type: 'text',
+                    name: "Patrik Ekstrom",
+                    title: "Owner, Hong Kong Wholesale",
+                    avatar: "patrik.png",
+                    rating: 5,
+                    testimonial: "We have been working with madsheets for over two years now. They have helped us build, manage and update our website and our sales and purchase management system. We have full confidence in their work and will continue to work with madsheets for all our tech needs.",
+                }
+
+            ];
+
+            // --- COMMON ---
+            let mainInterval;
+            let resizeTimeout;
+
+            // --- DESKTOP LOGIC ---
+            function initializeDesktopView() {
+                const challengesListDesktop = document.getElementById('challenges-list-desktop');
+                const desktopSolutionContainer = document.querySelector('.solution-content-desktop');
+                const solutionImageDesktop = document.getElementById('solution-image-desktop');
+                const solutionIconDesktop = document.getElementById('solution-icon-desktop');
+                const solutionTitleDesktop = document.getElementById('solution-title-desktop');
+                const solutionDescriptionDesktop = document.getElementById('solution-description-desktop');
+
+                let currentIndex = 2;
+                let isPausedByUser = false;
+
+                function updateSolution(index, isInitial = false, isManualClick = false) {
+                    const selected = challengesData[index];
+                    
+                    const fadeDuration = isManualClick ? 0 : 300; // instant if manual click
+
+                    if (!isInitial) {
+                        desktopSolutionContainer.style.transition = `opacity ${fadeDuration}ms ease-in-out`;
+                        desktopSolutionContainer.style.opacity = 0;
+                    }
+                    
+                    setTimeout(() => {
+                        solutionImageDesktop.src = selected.solution.image;
+                        solutionIconDesktop.className = "fi fi-rr-check-circle text-3xl text-[#2BA24C] flex items-center";
+                        solutionTitleDesktop.textContent = selected.solution.title;
+                        solutionDescriptionDesktop.textContent = selected.solution.description;
+
+                        if (selected.solution.image === 'p3.png') {
+                            solutionImageDesktop.classList.remove('drop-shadow-xl');
+                        } else {
+                            solutionImageDesktop.classList.add('drop-shadow-xl');
+                        }
+                        if (!isInitial) {
+                            desktopSolutionContainer.style.opacity = 1;
+                        }
+
+                    }, isInitial ? 0 : fadeDuration);
+
+                    Array.from(challengesListDesktop.children).forEach((item, idx) => {
+                        const text = item.querySelector('.challenge-text');
+                        const iconContainer = item.querySelector('.challenge-icon');
+                        const arrowContainer = item.querySelector('.challenge-arrow');
+                        const arrowIconInactive = `<i class="fi fi-tr-angle-right text-2xl text-[#AAAAAA]"></i>`;
+                        const arrowIconActive = `<i class="fi fi-tr-angle-right text-2xl text-[#2BA24C]"></i>`;
+                        
+                        if (idx === index) {
+                            item.classList.remove('bg-white');
+                            item.classList.add('bg-[#EAFDEF]');
+                            text.innerHTML = challengesData[idx].challenge_active;
+                            text.classList.remove('text-[#FF4F4F]', 'font-medium');
+                            text.classList.add('text-[#2BA24C]', 'font-bold');
+                            iconContainer.classList.remove('text-[#FF4F4F]');
+                            iconContainer.classList.add('text-[#2BA24C]');
+                            arrowContainer.innerHTML = arrowIconActive;
+                        } else {
+                           item.classList.add('bg-white');
+                            item.classList.remove('bg-[#EAFDEF]');
+                            text.innerHTML = challengesData[idx].challenge_normal;
+                            text.classList.remove('text-[#2BA24C]', 'font-bold');
+                            text.classList.add('text-[#FF4F4F]', 'font-medium');
+                            iconContainer.classList.add('text-[#FF4F4F]');
+                            iconContainer.classList.remove('text-[#2BA24C]');
+                            arrowContainer.innerHTML = arrowIconInactive;
+                        }
+                    });
+                }
+
+                challengesListDesktop.innerHTML = '';
+                challengesData.forEach((data, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'challenge-item flex items-center justify-between p-6 cursor-pointer border-b border-gray-100';
+                    item.innerHTML = `
+                        <div class="flex items-center gap-5">
+                            <div class="challenge-icon w-10 h-10 flex items-center justify-center">${data.icon.replace('text-3xl', 'text-4xl')}</div>
+                            <p class="challenge-text text-xl">${data.challenge_normal}</p>
+                        </div>
+                        <div class="challenge-arrow"></div>`;
+                    item.addEventListener('click', () => {
+                        currentIndex = index;
+                        isPausedByUser = true;
+                        clearInterval(mainInterval);
+                        updateSolution(index, false, true); // true for manual click
+                    });
+                    challengesListDesktop.appendChild(item);
+                });
+
+                function manageInterval() {
+                    if (mainInterval) clearInterval(mainInterval);
+                    if (!isPausedByUser) {
+                        mainInterval = setInterval(() => {
+                            currentIndex = (currentIndex + 1) % challengesData.length;
+                            updateSolution(currentIndex);
+                        }, 5000); // Changed to 5 seconds
+                    }
+                }
+
+                const challengesSection = document.getElementById('challenges-section');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (!entry.isIntersecting && isPausedByUser) {
+                            isPausedByUser = false;
+                            manageInterval();
+                        }
+                    });
+                }, { threshold: 0.1 });
+                observer.observe(challengesSection);
+
+                updateSolution(currentIndex, true);
+                manageInterval();
+            }
+
+            // --- MOBILE CAROUSEL LOGIC ---
+            function initializeMobileView() {
+                const carouselTrack = document.getElementById('carousel-track');
+                const prevButton = document.getElementById('carousel-prev');
+                const nextButton = document.getElementById('carousel-next');
+                let isPausedByUser = false;
+                
+                carouselTrack.innerHTML = '';
+                const slideData = [...challengesData, ...challengesData, ...challengesData];
+                
+                slideData.forEach(data => {
+                    const slide = document.createElement('div');
+                    slide.className = 'w-full flex-shrink-0 flex flex-col';
+                    const shadowClass = data.solution.image !== 'p3.png' ? 'drop-shadow-xl' : '';
+                    slide.innerHTML = `
+                        <div class="p-5 border-b border-gray-100 bg-red-50">
+                            <div class="flex items-center gap-4 text-[#FF4F4F]">
+                                <div class="w-10 h-10 flex items-center justify-center">${data.icon}</div>
+                                <p class="text-base font-medium">${data.challenge_normal}</p>
+                            </div>
+                        </div>
+                        <div class="bg-[#EAFDEF] p-5 flex-grow">
+                            <img src="${data.solution.image}" alt="Solution visual" class="rounded-2xl mb-5 ${shadowClass}">
+                            <div class="flex items-center gap-3 mb-2">
+                                <i class="fi fi-rr-check-circle text-xl text-[#2BA24C]"></i>
+                                <h3 class="text-lg font-bold text-[#2BA24C]">${data.solution.title}</h3>
+                            </div>
+                            <p class="text-sm text-[#555555] mb-5">${data.solution.description}</p>
+                            <a href="#get-in-touch" class="bg-[#2BA24C] text-white text-sm font-bold px-5 py-2 rounded-full custom-shadow hover:bg-green-600 transition-all duration-300 self-start">Get Started</a>
+                        </div>`;
+                    carouselTrack.appendChild(slide);
+                });
+
+                let currentIndex = challengesData.length;
+                
+                function moveToSlide(withTransition = true) {
+                    carouselTrack.style.transition = withTransition ? 'transform 0.5s ease-in-out' : 'none';
+                    const slideWidth = carouselTrack.children[0].getBoundingClientRect().width;
+                    carouselTrack.style.transform = `translateX(-${slideWidth * currentIndex}px)`;
+                }
+                
+                function showNext() {
+                    currentIndex++;
+                    moveToSlide();
+                }
+
+                function showPrev() {
+                    currentIndex--;
+                    moveToSlide();
+                }
+
+                carouselTrack.addEventListener('transitionend', () => {
+                    if (currentIndex >= challengesData.length * 2) {
+                        currentIndex = challengesData.length;
+                        moveToSlide(false);
+                    }
+                    if (currentIndex < challengesData.length) {
+                        currentIndex = (challengesData.length * 2) -1;
+                        moveToSlide(false);
+                    }
+                });
+
+                function manageInterval() {
+                    if (mainInterval) clearInterval(mainInterval);
+                    if (!isPausedByUser) {
+                        mainInterval = setInterval(showNext, 3000);
+                    }
+                }
+
+                nextButton.addEventListener('click', () => {
+                    isPausedByUser = true;
+                    clearInterval(mainInterval);
+                    showNext();
+                });
+
+                prevButton.addEventListener('click', () => {
+                    isPausedByUser = true;
+                    clearInterval(mainInterval);
+                    showPrev();
+                });
+
+                const challengesSection = document.getElementById('challenges-section');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (!entry.isIntersecting && isPausedByUser) {
+                            isPausedByUser = false;
+                            manageInterval();
+                        }
+                    });
+                }, { threshold: 0.1 });
+                observer.observe(challengesSection);
+                
+                moveToSlide(false);
+                manageInterval();
+            }
+
+            // --- TESTIMONIALS MASONRY ---
+            function initializeTestimonials() {
+                const grid = document.getElementById('masonry-grid');
+                grid.innerHTML = ''; 
+
+                testimonialsData.forEach(testimonial => {
+                    const item = document.createElement('div');
+                    item.className = 'w-full sm:w-1/2 lg:w-1/3 p-2 masonry-item';
+                    const starIcons = Array(5).fill(0).map(() => `<svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.956a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.448a1 1 0 00-.364 1.118l1.286 3.956c.3.921-.755 1.688-1.54 1.118l-3.368-2.448a1 1 0 00-1.176 0l-3.368 2.448c-.784.57-1.838-.197-1.54-1.118l1.286-3.956a1 1 0 00-.364-1.118L2.35 9.383c-.784-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.956z"></path></svg>`).join('');
+
+                    if (testimonial.type === 'text') {
+                        item.innerHTML = `
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden p-6 flex flex-col h-full">
+                            <p class="text-gray-600 leading-relaxed my-6 flex-grow">"${testimonial.testimonial}"</p>
+                            <div class="flex items-center mt-auto pt-4 border-t border-gray-100">
+                                <img src="${testimonial.avatar}" alt="${testimonial.name}" class="w-12 h-12 rounded-full">
+                                <div class="ml-4">
+                                    <p class="font-bold text-gray-800 text-lg">${testimonial.name}</p>
+                                    <p class="text-sm text-gray-500 -mt-1">${testimonial.title}</p>
+                                    <div class="flex mt-1">${starIcons}</div>
+                                </div>
+                            </div>
+                        </div>`;
+                    } else { // Video or Image
+                         item.innerHTML = `
+                         <div class="bg-white rounded-2xl shadow-lg overflow-hidden relative">
+                            ${testimonial.media}
+                            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
+                                <div class="flex items-center">
+                                    <img src="${testimonial.avatar}" alt="${testimonial.name}" class="w-10 h-10 rounded-full border-2 border-white/50">
+                                    <div class="ml-3">
+                                        <p class="font-bold text-white text-base">${testimonial.name}</p>
+                                        <p class="text-xs text-white/80">${testimonial.title}</p>
+                                        <div class="flex mt-1">${starIcons}</div>
+                                    </div>
+                                </div>
+                            </div>
+                         </div>`;
+                    }
+                    grid.appendChild(item);
+                });
+                
+                var msnry = new Masonry(grid, {
+                    itemSelector: '.masonry-item',
+                    percentPosition: true,
+                });
+
+                imagesLoaded(grid).on('progress', function() {
+                    msnry.layout();
+                });
+            }
+
+            // --- VIEW INITIALIZATION LOGIC ---
+            function handleView() {
+                if (mainInterval) clearInterval(mainInterval);
+
+                const iframe = document.getElementById('booking-iframe');
+                if (iframe) {
+                    if (window.innerWidth < 1024) {
+                        document.getElementById('challenges-desktop-view').style.display = 'none';
+                        document.getElementById('challenges-carousel-mobile').style.display = 'block';
+                        iframe.setAttribute('scrolling', 'yes');
+                        iframe.style.height = '650px';
+                        initializeMobileView();
+                    } else {
+                        document.getElementById('challenges-desktop-view').style.display = 'grid';
+                        document.getElementById('challenges-carousel-mobile').style.display = 'none';
+                        iframe.setAttribute('scrolling', 'no');
+                         iframe.style.height = '700px';
+                        initializeDesktopView();
+                    }
+                } else {
+                     if (window.innerWidth < 1024) {
+                        document.getElementById('challenges-desktop-view').style.display = 'none';
+                        document.getElementById('challenges-carousel-mobile').style.display = 'block';
+                        initializeMobileView();
+                    } else {
+                        document.getElementById('challenges-desktop-view').style.display = 'grid';
+                        document.getElementById('challenges-carousel-mobile').style.display = 'none';
+                        initializeDesktopView();
+                    }
+                }
+            }
+            
+            initializeTestimonials();
+            handleView();
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(handleView, 250);
+            });
+        });
+    </script>
+<script>
+  // Select the form by its ID
+  const contactForm = document.getElementById('contact-form');
+
+  contactForm.addEventListener('submit', function(event) {
+    // Find all the error message spans
+    const errorMessages = contactForm.querySelectorAll('.error-message');
+    // Hide all error messages before validating again
+    errorMessages.forEach(msg => msg.style.display = 'none');
+
+    // Check if the form is invalid
+    if (!contactForm.checkValidity()) {
+      // Prevent the form from submitting
+      event.preventDefault();
+
+      // Find all invalid fields within the form
+      const invalidFields = contactForm.querySelectorAll(':invalid');
+
+      invalidFields.forEach(field => {
+        // For each invalid field, find the next sibling element with the class 'error-message' and display it
+        const errorSpan = field.nextElementSibling;
+        if (errorSpan && errorSpan.classList.contains('error-message')) {
+          errorSpan.style.display = 'block';
+        }
+      });
+    }
+    // If the form is valid, the script does nothing, and the form submits normally to Netlify.
+  });
+</script>
+<script type="module">
+    let selectedDate = new Date();
+    let selectedTime = null;
+    let selectedDayEl = null;
+    let calendarConfig = { duration: 60, schedule: { DEFAULT: [{ start: 9, end: 17 }] } };
+
+    const allElements = { bookingForm: document.getElementById('booking-form'), bookBtn: document.getElementById('book-btn'), nameInput: document.getElementById('name'), emailInput: document.getElementById('email'), timeSlotsEl: document.getElementById('time-slots'), calendarGridEl: document.getElementById('calendar-grid'), currentMonthYearEl: document.getElementById('current-month-year'), prevMonthBtn: document.getElementById('prev-month'), nextMonthBtn: document.getElementById('next-month'), modal: document.getElementById('modal'), modalContent: document.getElementById('modal-content'), modalTitle: document.getElementById('modal-title'), modalMessage: document.getElementById('modal-message'), modalCloseBtn: document.getElementById('modal-close-btn'), selectedDateDisplay: document.getElementById('selected-date-display'), selectedTimeDisplay: document.getElementById('selected-time-display') };
+
+    allElements.prevMonthBtn.addEventListener('click', () => changeMonth(-1));
+    allElements.nextMonthBtn.addEventListener('click', () => changeMonth(1));
+    allElements.bookingForm.addEventListener('submit', handleFormSubmit);
+    allElements.nameInput.addEventListener('input', checkFormValidity);
+    allElements.emailInput.addEventListener('input', checkFormValidity);
+    allElements.modalCloseBtn.addEventListener('click', () => closeModal());
+
+    async function fetchSettings() { try { const response = await fetch('/api/settings'); calendarConfig = await response.json(); console.log('App settings loaded:', calendarConfig); } catch (error) { console.error("Could not fetch settings, using defaults.", error); } }
+    function changeMonth(direction) { selectedDate.setMonth(selectedDate.getMonth() + direction); drawCalendar(selectedDate); updateTimeSlots(selectedDate); selectedTime = null; checkFormValidity(); }
+    async function handleFormSubmit(e) { e.preventDefault(); allElements.bookBtn.disabled = true; if (!selectedTime) { allElements.bookBtn.disabled = false; return; } const appointmentData = { name: allElements.nameInput.value, email: allElements.emailInput.value, dateTime: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), selectedTime.hour, selectedTime.minute).toISOString() }; try { const response = await fetch('/api/book-appointment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(appointmentData) }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Booking failed.'); } await response.json(); showModal("Success!", "Your appointment has been booked. Please check your email for confirmation."); updateBookedSlots(selectedDate); allElements.bookingForm.reset(); selectedTime = null; checkFormValidity(); updateAppointmentDisplay(); } catch (error) { console.error("Error booking:", error); showModal("Error", error.message); } finally { checkFormValidity(); } }
+    function showModal(title, message) { allElements.modalTitle.textContent = title; allElements.modalMessage.textContent = message; allElements.modal.classList.add('open'); setTimeout(() => allElements.modalContent.classList.add('scale-100', 'opacity-100'), 50); }
+    function closeModal() { allElements.modalContent.classList.remove('scale-100', 'opacity-100'); setTimeout(() => allElements.modal.classList.remove('open'), 300); }
+    function checkFormValidity() { allElements.bookBtn.disabled = !(allElements.nameInput.value.trim() !== '' && allElements.emailInput.value.trim() !== '' && selectedTime !== null); }
+    function drawCalendar(date) { allElements.calendarGridEl.innerHTML = `<div class="text-sm font-medium text-[#1f873e] py-2">Sun</div><div class="text-sm font-medium text-[#1f873e] py-2">Mon</div><div class="text-sm font-medium text-[#1f873e] py-2">Tue</div><div class="text-sm font-medium text-[#1f873e] py-2">Wed</div><div class="text-sm font-medium text-[#1f873e] py-2">Thu</div><div class="text-sm font-medium text-[#1f873e] py-2">Fri</div><div class="text-sm font-medium text-[#1f873e] py-2">Sat</div>`; if (selectedDayEl) selectedDayEl.classList.remove('day-selected', 'selected-glow'); const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1), endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0), firstDayOfWeek = startOfMonth.getDay(); allElements.currentMonthYearEl.textContent = startOfMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' }); for (let i = 0; i < firstDayOfWeek; i++) allElements.calendarGridEl.appendChild(document.createElement('div')); for (let i = 1; i <= endOfMonth.getDate(); i++) { const dayCell = document.createElement('div'), day = new Date(date.getFullYear(), date.getMonth(), i), isSelected = day.toDateString() === selectedDate.toDateString(), isDisabled = day < new Date(new Date().setHours(0, 0, 0, 0)); dayCell.textContent = i; let classes = "py-2 rounded-full text-sm flex items-center justify-center h-10 w-10 mx-auto"; if (isDisabled) classes += " text-gray-300 cursor-not-allowed"; else { classes += " cursor-pointer"; if (isSelected) { classes += " day-selected selected-glow"; selectedDayEl = dayCell; } else classes += " hover:bg-[#dff5e5] hover-glow"; } dayCell.className = classes; if (!isDisabled) { dayCell.addEventListener('click', () => { if (selectedDayEl) { selectedDayEl.classList.remove('day-selected', 'selected-glow'); selectedDayEl.classList.add('hover:bg-[#dff5e5]', 'hover-glow'); } dayCell.classList.remove('hover:bg-[#dff5e5]', 'hover-glow'); dayCell.classList.add('day-selected', 'selected-glow'); selectedDayEl = dayCell; selectedDate = day; updateTimeSlots(day); updateAppointmentDisplay(); }); } allElements.calendarGridEl.appendChild(dayCell); } }
+
+    function updateAppointmentDisplay() { allElements.selectedDateDisplay.textContent = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }); if (selectedTime) { const dt = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), selectedTime.hour, selectedTime.minute); allElements.selectedTimeDisplay.textContent = dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); } else { allElements.selectedTimeDisplay.textContent = 'Please select a time'; } }
+    
+    function updateTimeSlots(date) {
+        allElements.timeSlotsEl.innerHTML = '';
+        selectedTime = null; checkFormValidity(); updateAppointmentDisplay();
+        const dayNames = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+        const todayName = dayNames[date.getDay()];
+        const daySchedule = calendarConfig.schedule[todayName] || calendarConfig.schedule.DEFAULT || [];
+        if (daySchedule.length === 0) { allElements.timeSlotsEl.innerHTML = '<p class="text-gray-500 col-span-full text-center">No available slots on this day.</p>'; return; }
+        daySchedule.forEach(block => {
+            const openingTimeInMinutes = block.start * 60; const closingTimeInMinutes = block.end * 60;
+            for (let totalMinutes = openingTimeInMinutes; totalMinutes < closingTimeInMinutes; totalMinutes += calendarConfig.duration) {
+                const hour = Math.floor(totalMinutes / 60); const minute = totalMinutes % 60;
+                const timeSlotBtn = document.createElement('button');
+                const timeString = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                timeSlotBtn.textContent = timeString;
+                timeSlotBtn.dataset.hour = hour; timeSlotBtn.dataset.minute = minute;
+                timeSlotBtn.className = `py-2 px-4 rounded-full text-sm font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#2ba24c] focus:ring-offset-2 bg-white text-[#1f873e] hover:bg-[#f0f9f3] hover-glow`;
+                timeSlotBtn.addEventListener('click', () => { allElements.timeSlotsEl.querySelectorAll('button:not(:disabled)').forEach(btn => btn.classList.remove('time-selected', 'selected-glow')); timeSlotBtn.classList.add('time-selected', 'selected-glow'); selectedTime = { hour: parseInt(timeSlotBtn.dataset.hour), minute: parseInt(timeSlotBtn.dataset.minute) }; checkFormValidity(); updateAppointmentDisplay(); });
+                allElements.timeSlotsEl.appendChild(timeSlotBtn);
+            }
+        });
+        updateBookedSlots(date);
+    }
+    
+    async function updateBookedSlots(date) { const timeSlotsButtons = allElements.timeSlotsEl.querySelectorAll('button'); timeSlotsButtons.forEach(btn => { btn.disabled = false; btn.classList.remove('bg-red-200', 'text-red-700', 'line-through', 'cursor-not-allowed'); btn.classList.add('bg-white', 'text-[#1f873e]'); }); const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; try { const response = await fetch(`/api/booked-slots?date=${dateString}`); if (!response.ok) throw new Error('Failed to fetch slots'); const bookedSlots = await response.json(); timeSlotsButtons.forEach(btn => { const btnHour = parseInt(btn.dataset.hour); const btnMinute = parseInt(btn.dataset.minute); const isPast = new Date(date.getFullYear(), date.getMonth(), date.getDate(), btnHour, btnMinute) < new Date(); const isBooked = bookedSlots.some(slot => slot[0] === btnHour && slot[1] === btnMinute); if (isBooked || isPast) { btn.disabled = true; btn.classList.remove('bg-white', 'text-[#1f873e]', 'hover:bg-[#f0f9f3]', 'hover-glow'); btn.classList.add('bg-red-200', 'text-red-700', 'line-through', 'cursor-not-allowed'); } }); } catch (error) { console.error("Error fetching slots:", error); } }
+    
+    // Initialize the component when the page loads
+    (async function() {
+        await fetchSettings();
+        const today = new Date();
+        selectedDate = today;
+        updateAppointmentDisplay();
+        drawCalendar(today);
+        updateTimeSlots(today);
+        checkFormValidity();
+    })();
+</script>
+</body>
+</html>
+
+
