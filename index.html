@@ -476,7 +476,7 @@
                   Fill out a short form below and we will get back to you ASAP
               </p>
           </div>
-          <form name="contact" method="POST" data-netlify="true" class="space-y-6" data-netlify-honeypot="bot-field">
+          <form name="contact" id="contact-form" method="POST" data-netlify="true" class="space-y-6" data-netlify-honeypot="bot-field">
 <input type="hidden" name="form-name" value="contact" />
 <p class="hidden">
     <label>Don’t fill this out if you’re human: <input name="bot-field" /></label>
@@ -1072,7 +1072,35 @@
             });
         });
     </script>
+<script>
+  // Select the form by its ID
+  const contactForm = document.getElementById('contact-form');
 
+  contactForm.addEventListener('submit', function(event) {
+    // Find all the error message spans
+    const errorMessages = contactForm.querySelectorAll('.error-message');
+    // Hide all error messages before validating again
+    errorMessages.forEach(msg => msg.style.display = 'none');
+
+    // Check if the form is invalid
+    if (!contactForm.checkValidity()) {
+      // Prevent the form from submitting
+      event.preventDefault();
+
+      // Find all invalid fields within the form
+      const invalidFields = contactForm.querySelectorAll(':invalid');
+
+      invalidFields.forEach(field => {
+        // For each invalid field, find the next sibling element with the class 'error-message' and display it
+        const errorSpan = field.nextElementSibling;
+        if (errorSpan && errorSpan.classList.contains('error-message')) {
+          errorSpan.style.display = 'block';
+        }
+      });
+    }
+    // If the form is valid, the script does nothing, and the form submits normally to Netlify.
+  });
+</script>
 <script type="module">
     let selectedDate = new Date();
     let selectedTime = null;
@@ -1088,218 +1116,40 @@
     allElements.emailInput.addEventListener('input', checkFormValidity);
     allElements.modalCloseBtn.addEventListener('click', () => closeModal());
 
-    async function fetchSettings() {
-        try {
-            const response = await fetch('/api/settings');
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            calendarConfig = await response.json();
-            console.log('App settings loaded:', calendarConfig);
-        } catch (error) {
-            console.error("Could not fetch settings, using defaults.", error);
-            showModal("Error", "Could not load calendar settings. Please try refreshing the page.");
-        }
-    }
+    async function fetchSettings() { try { const response = await fetch('/api/settings'); calendarConfig = await response.json(); console.log('App settings loaded:', calendarConfig); } catch (error) { console.error("Could not fetch settings, using defaults.", error); } }
+    function changeMonth(direction) { selectedDate.setMonth(selectedDate.getMonth() + direction); drawCalendar(selectedDate); updateTimeSlots(selectedDate); selectedTime = null; checkFormValidity(); }
+    async function handleFormSubmit(e) { e.preventDefault(); allElements.bookBtn.disabled = true; if (!selectedTime) { allElements.bookBtn.disabled = false; return; } const appointmentData = { name: allElements.nameInput.value, email: allElements.emailInput.value, dateTime: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), selectedTime.hour, selectedTime.minute).toISOString() }; try { const response = await fetch('/api/book-appointment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(appointmentData) }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Booking failed.'); } await response.json(); showModal("Success!", "Your appointment has been booked. Please check your email for confirmation."); updateBookedSlots(selectedDate); allElements.bookingForm.reset(); selectedTime = null; checkFormValidity(); updateAppointmentDisplay(); } catch (error) { console.error("Error booking:", error); showModal("Error", error.message); } finally { checkFormValidity(); } }
+    function showModal(title, message) { allElements.modalTitle.textContent = title; allElements.modalMessage.textContent = message; allElements.modal.classList.add('open'); setTimeout(() => allElements.modalContent.classList.add('scale-100', 'opacity-100'), 50); }
+    function closeModal() { allElements.modalContent.classList.remove('scale-100', 'opacity-100'); setTimeout(() => allElements.modal.classList.remove('open'), 300); }
+    function checkFormValidity() { allElements.bookBtn.disabled = !(allElements.nameInput.value.trim() !== '' && allElements.emailInput.value.trim() !== '' && selectedTime !== null); }
+    function drawCalendar(date) { allElements.calendarGridEl.innerHTML = `<div class="text-sm font-medium text-[#1f873e] py-2">Sun</div><div class="text-sm font-medium text-[#1f873e] py-2">Mon</div><div class="text-sm font-medium text-[#1f873e] py-2">Tue</div><div class="text-sm font-medium text-[#1f873e] py-2">Wed</div><div class="text-sm font-medium text-[#1f873e] py-2">Thu</div><div class="text-sm font-medium text-[#1f873e] py-2">Fri</div><div class="text-sm font-medium text-[#1f873e] py-2">Sat</div>`; if (selectedDayEl) selectedDayEl.classList.remove('day-selected', 'selected-glow'); const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1), endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0), firstDayOfWeek = startOfMonth.getDay(); allElements.currentMonthYearEl.textContent = startOfMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' }); for (let i = 0; i < firstDayOfWeek; i++) allElements.calendarGridEl.appendChild(document.createElement('div')); for (let i = 1; i <= endOfMonth.getDate(); i++) { const dayCell = document.createElement('div'), day = new Date(date.getFullYear(), date.getMonth(), i), isSelected = day.toDateString() === selectedDate.toDateString(), isDisabled = day < new Date(new Date().setHours(0, 0, 0, 0)); dayCell.textContent = i; let classes = "py-2 rounded-full text-sm flex items-center justify-center h-10 w-10 mx-auto"; if (isDisabled) classes += " text-gray-300 cursor-not-allowed"; else { classes += " cursor-pointer"; if (isSelected) { classes += " day-selected selected-glow"; selectedDayEl = dayCell; } else classes += " hover:bg-[#dff5e5] hover-glow"; } dayCell.className = classes; if (!isDisabled) { dayCell.addEventListener('click', () => { if (selectedDayEl) { selectedDayEl.classList.remove('day-selected', 'selected-glow'); selectedDayEl.classList.add('hover:bg-[#dff5e5]', 'hover-glow'); } dayCell.classList.remove('hover:bg-[#dff5e5]', 'hover-glow'); dayCell.classList.add('day-selected', 'selected-glow'); selectedDayEl = dayCell; selectedDate = day; updateTimeSlots(day); updateAppointmentDisplay(); }); } allElements.calendarGridEl.appendChild(dayCell); } }
 
-    function changeMonth(direction) {
-        selectedDate.setMonth(selectedDate.getMonth() + direction);
-        drawCalendar(selectedDate);
-        updateTimeSlots(selectedDate);
-        selectedTime = null;
-        checkFormValidity();
-        updateAppointmentDisplay();
-    }
-
-    async function handleFormSubmit(e) {
-        e.preventDefault();
-        allElements.bookBtn.disabled = true;
-        if (!selectedTime) {
-            allElements.bookBtn.disabled = false;
-            return;
-        }
-        const appointmentData = {
-            name: allElements.nameInput.value,
-            email: allElements.emailInput.value,
-            dateTime: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), selectedTime.hour, selectedTime.minute).toISOString()
-        };
-        console.log('Data being sent to server:', appointmentData); // <-- ADD THIS LINE
-        try {
-            const response = await fetch('/api/book-appointment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(appointmentData)
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Booking failed.');
-            }
-            await response.json();
-            showModal("Success!", "Your appointment has been booked. Please check your email for confirmation.");
-            allElements.bookingForm.reset();
-            selectedTime = null;
-            checkFormValidity();
-            updateAppointmentDisplay();
-            await updateTimeSlots(selectedDate); // Refresh slots
-        } catch (error) {
-            console.error("Error booking:", error);
-            showModal("Error", error.message);
-        } finally {
-            checkFormValidity();
-        }
-    }
-
-    function showModal(title, message) {
-        allElements.modalTitle.textContent = title;
-        allElements.modalMessage.textContent = message;
-        allElements.modal.classList.add('open');
-        setTimeout(() => allElements.modalContent.classList.add('scale-100', 'opacity-100'), 50);
-    }
-
-    function closeModal() {
-        allElements.modalContent.classList.remove('scale-100', 'opacity-100');
-        setTimeout(() => allElements.modal.classList.remove('open'), 300);
-    }
-
-    function checkFormValidity() {
-        allElements.bookBtn.disabled = !(allElements.nameInput.value.trim() !== '' && allElements.emailInput.value.trim() !== '' && selectedTime !== null);
-    }
-
-    function drawCalendar(date) {
-        allElements.calendarGridEl.innerHTML = `<div class="text-sm font-medium text-[#1f873e] py-2">Sun</div><div class="text-sm font-medium text-[#1f873e] py-2">Mon</div><div class="text-sm font-medium text-[#1f873e] py-2">Tue</div><div class="text-sm font-medium text-[#1f873e] py-2">Wed</div><div class="text-sm font-medium text-[#1f873e] py-2">Thu</div><div class="text-sm font-medium text-[#1f873e] py-2">Fri</div><div class="text-sm font-medium text-[#1f873e] py-2">Sat</div>`;
-        if (selectedDayEl) {
-            selectedDayEl.classList.remove('day-selected', 'selected-glow');
-        }
-        const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-        const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        const firstDayOfWeek = startOfMonth.getDay();
-        allElements.currentMonthYearEl.textContent = startOfMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-
-        for (let i = 0; i < firstDayOfWeek; i++) {
-            allElements.calendarGridEl.appendChild(document.createElement('div'));
-        }
-
-        for (let i = 1; i <= endOfMonth.getDate(); i++) {
-            const dayCell = document.createElement('div');
-            const day = new Date(date.getFullYear(), date.getMonth(), i);
-            const isSelected = day.toDateString() === selectedDate.toDateString();
-            const isDisabled = day < new Date(new Date().setHours(0, 0, 0, 0));
-            dayCell.textContent = i;
-            let classes = "py-2 rounded-full text-sm flex items-center justify-center h-10 w-10 mx-auto";
-
-            if (isDisabled) {
-                classes += " text-gray-300 cursor-not-allowed";
-            } else {
-                classes += " cursor-pointer";
-                if (isSelected) {
-                    classes += " day-selected selected-glow";
-                    selectedDayEl = dayCell;
-                } else {
-                    classes += " hover:bg-[#dff5e5] hover-glow";
-                }
-            }
-            dayCell.className = classes;
-
-            if (!isDisabled) {
-                dayCell.addEventListener('click', () => {
-                    if (selectedDayEl) {
-                        selectedDayEl.classList.remove('day-selected', 'selected-glow');
-                    }
-                    dayCell.classList.add('day-selected', 'selected-glow');
-                    selectedDayEl = dayCell;
-                    selectedDate = day;
-                    updateTimeSlots(day);
-                    updateAppointmentDisplay();
-                });
-            }
-            allElements.calendarGridEl.appendChild(dayCell);
-        }
-    }
-
-    function updateAppointmentDisplay() {
-        allElements.selectedDateDisplay.textContent = `: ${selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`;
-        if (selectedTime) {
-            const dt = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), selectedTime.hour, selectedTime.minute);
-            allElements.selectedTimeDisplay.textContent = `: ${dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
-        } else {
-            allElements.selectedTimeDisplay.textContent = ': Please select a time';
-        }
-    }
+    function updateAppointmentDisplay() { allElements.selectedDateDisplay.textContent = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }); if (selectedTime) { const dt = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), selectedTime.hour, selectedTime.minute); allElements.selectedTimeDisplay.textContent = dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); } else { allElements.selectedTimeDisplay.textContent = 'Please select a time'; } }
     
-    async function updateTimeSlots(date) {
-        allElements.timeSlotsEl.innerHTML = '<p class="text-gray-500 col-span-full text-center">Loading...</p>';
-        selectedTime = null;
-        checkFormValidity();
-        updateAppointmentDisplay();
-
-        await updateBookedSlots(date); // Fetch booked slots first
-
+    function updateTimeSlots(date) {
+        allElements.timeSlotsEl.innerHTML = '';
+        selectedTime = null; checkFormValidity(); updateAppointmentDisplay();
         const dayNames = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
         const todayName = dayNames[date.getDay()];
         const daySchedule = calendarConfig.schedule[todayName] || calendarConfig.schedule.DEFAULT || [];
-        
-        allElements.timeSlotsEl.innerHTML = ''; // Clear loading message
-        if (daySchedule.length === 0) {
-            allElements.timeSlotsEl.innerHTML = '<p class="text-gray-500 col-span-full text-center">No available slots on this day.</p>';
-            return;
-        }
-        
+        if (daySchedule.length === 0) { allElements.timeSlotsEl.innerHTML = '<p class="text-gray-500 col-span-full text-center">No available slots on this day.</p>'; return; }
         daySchedule.forEach(block => {
-            const openingTimeInMinutes = block.start * 60;
-            const closingTimeInMinutes = block.end * 60;
+            const openingTimeInMinutes = block.start * 60; const closingTimeInMinutes = block.end * 60;
             for (let totalMinutes = openingTimeInMinutes; totalMinutes < closingTimeInMinutes; totalMinutes += calendarConfig.duration) {
-                const hour = Math.floor(totalMinutes / 60);
-                const minute = totalMinutes % 60;
+                const hour = Math.floor(totalMinutes / 60); const minute = totalMinutes % 60;
                 const timeSlotBtn = document.createElement('button');
                 const timeString = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                 timeSlotBtn.textContent = timeString;
-                timeSlotBtn.dataset.hour = hour;
-                timeSlotBtn.dataset.minute = minute;
+                timeSlotBtn.dataset.hour = hour; timeSlotBtn.dataset.minute = minute;
                 timeSlotBtn.className = `py-2 px-4 rounded-full text-sm font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#2ba24c] focus:ring-offset-2 bg-white text-[#1f873e] hover:bg-[#f0f9f3] hover-glow`;
-                timeSlotBtn.addEventListener('click', () => {
-                    allElements.timeSlotsEl.querySelectorAll('button:not(:disabled)').forEach(btn => btn.classList.remove('time-selected', 'selected-glow'));
-                    timeSlotBtn.classList.add('time-selected', 'selected-glow');
-                    selectedTime = { hour: parseInt(timeSlotBtn.dataset.hour), minute: parseInt(timeSlotBtn.dataset.minute) };
-                    checkFormValidity();
-                    updateAppointmentDisplay();
-                });
+                timeSlotBtn.addEventListener('click', () => { allElements.timeSlotsEl.querySelectorAll('button:not(:disabled)').forEach(btn => btn.classList.remove('time-selected', 'selected-glow')); timeSlotBtn.classList.add('time-selected', 'selected-glow'); selectedTime = { hour: parseInt(timeSlotBtn.dataset.hour), minute: parseInt(timeSlotBtn.dataset.minute) }; checkFormValidity(); updateAppointmentDisplay(); });
                 allElements.timeSlotsEl.appendChild(timeSlotBtn);
             }
         });
-
-        // Re-run this to disable the newly created buttons
-        await updateBookedSlots(date);
+        updateBookedSlots(date);
     }
     
-    async function updateBookedSlots(date) {
-        const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        try {
-            const response = await fetch(`/api/booked-slots?date=${dateString}`);
-            if (!response.ok) throw new Error('Failed to fetch slots');
-            const bookedSlots = await response.json();
-            const timeSlotsButtons = allElements.timeSlotsEl.querySelectorAll('button');
-
-            timeSlotsButtons.forEach(btn => {
-                const btnHour = parseInt(btn.dataset.hour);
-                const btnMinute = parseInt(btn.dataset.minute);
-                const slotTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), btnHour, btnMinute);
-                const isPast = slotTime < new Date();
-                const isBooked = bookedSlots.some(slot => slot[0] === btnHour && slot[1] === btnMinute);
-
-                if (isBooked || isPast) {
-                    btn.disabled = true;
-                    btn.classList.remove('bg-white', 'text-[#1f873e]', 'hover:bg-[#f0f9f3]', 'hover-glow');
-                    btn.classList.add('bg-red-200', 'text-red-700', 'line-through', 'cursor-not-allowed');
-                } else {
-                    btn.disabled = false;
-                    btn.classList.add('bg-white', 'text-[#1f873e]');
-                    btn.classList.remove('bg-red-200', 'text-red-700', 'line-through', 'cursor-not-allowed');
-                }
-            });
-        } catch (error) {
-            console.error("Error fetching slots:", error);
-        }
-    }
+    async function updateBookedSlots(date) { const timeSlotsButtons = allElements.timeSlotsEl.querySelectorAll('button'); timeSlotsButtons.forEach(btn => { btn.disabled = false; btn.classList.remove('bg-red-200', 'text-red-700', 'line-through', 'cursor-not-allowed'); btn.classList.add('bg-white', 'text-[#1f873e]'); }); const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; try { const response = await fetch(`/api/booked-slots?date=${dateString}`); if (!response.ok) throw new Error('Failed to fetch slots'); const bookedSlots = await response.json(); timeSlotsButtons.forEach(btn => { const btnHour = parseInt(btn.dataset.hour); const btnMinute = parseInt(btn.dataset.minute); const isPast = new Date(date.getFullYear(), date.getMonth(), date.getDate(), btnHour, btnMinute) < new Date(); const isBooked = bookedSlots.some(slot => slot[0] === btnHour && slot[1] === btnMinute); if (isBooked || isPast) { btn.disabled = true; btn.classList.remove('bg-white', 'text-[#1f873e]', 'hover:bg-[#f0f9f3]', 'hover-glow'); btn.classList.add('bg-red-200', 'text-red-700', 'line-through', 'cursor-not-allowed'); } }); } catch (error) { console.error("Error fetching slots:", error); } }
     
     // Initialize the component when the page loads
     (async function() {
@@ -1308,7 +1158,7 @@
         selectedDate = today;
         updateAppointmentDisplay();
         drawCalendar(today);
-        await updateTimeSlots(today);
+        updateTimeSlots(today);
         checkFormValidity();
     })();
 </script>
