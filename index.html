@@ -1072,35 +1072,7 @@
             });
         });
     </script>
-<script>
-  // Select the form by its ID
-  const contactForm = document.getElementById('contact-form');
 
-  contactForm.addEventListener('submit', function(event) {
-    // Find all the error message spans
-    const errorMessages = contactForm.querySelectorAll('.error-message');
-    // Hide all error messages before validating again
-    errorMessages.forEach(msg => msg.style.display = 'none');
-
-    // Check if the form is invalid
-    if (!contactForm.checkValidity()) {
-      // Prevent the form from submitting
-      event.preventDefault();
-
-      // Find all invalid fields within the form
-      const invalidFields = contactForm.querySelectorAll(':invalid');
-
-      invalidFields.forEach(field => {
-        // For each invalid field, find the next sibling element with the class 'error-message' and display it
-        const errorSpan = field.nextElementSibling;
-        if (errorSpan && errorSpan.classList.contains('error-message')) {
-          errorSpan.style.display = 'block';
-        }
-      });
-    }
-    // If the form is valid, the script does nothing, and the form submits normally to Netlify.
-  });
-</script>
 <script type="module">
     let selectedDate = new Date();
     let selectedTime = null;
